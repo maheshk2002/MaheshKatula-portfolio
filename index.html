@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahesh Katula | Data Scientist & AI Strategist</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0a0a16;
+            --primary: #06b6d4; /* Cyan */
+            --secondary: #8b5cf6; /* Purple */
+            --tertiary: #10b981; /* Emerald */
+            --accent: #f59e0b; /* Orange/Amber */
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            
+            /* Neon Glow Colors */
+            --glow-purple: rgba(139, 92, 246, 0.8);
+            --glow-cyan: rgba(6, 182, 212, 0.8);
+            --glow-emerald: rgba(16, 185, 129, 0.8);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+            /* Removed global perspective to fix modal positioning */
+        }
+
+        /* --- FIXED BACKGROUND CANVAS (Visible Everywhere) --- */
+        #canvas-container { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            z-index: -1; 
+            pointer-events: none;
+        }
+
+        /* --- SCROLL PROGRESS --- */
+        #scroll-progress {
+            position: fixed; top: 0; left: 0; height: 3px; 
+            background: linear-gradient(90deg, var(--primary), var(--secondary)); 
+            z-index: 10002; width: 0%; transition: width 0.1s;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            padding: 20px 0; transition: all 0.3s ease;
+        }
+        nav.scrolled {
+            background: rgba(10, 10, 22, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .nav-content { 
+            max-width: 1200px; margin: 0 auto; display: flex; 
+            justify-content: space-between; align-items: center; padding: 0 20px; 
+        }
+        
+        .logo { 
+            font-family: 'Space Grotesk'; font-weight: 700; font-size: 1.8rem; 
+            background: linear-gradient(to right, var(--primary), var(--secondary)); 
+            -webkit-background-clip: text; color: transparent; cursor: pointer;
+            transition: transform 0.4s; display: inline-block;
+        }
+        .logo:hover { transform: scale(1.1) rotate(-2deg); text-shadow: 0 0 20px rgba(139, 92, 246, 0.5); }
+        
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a { 
+            color: var(--text-muted); text-decoration: none; font-size: 0.95rem; 
+            font-weight: 500; transition: 0.3s; display: flex; align-items: center; gap: 8px;
+            position: relative; padding-bottom: 5px;
+        }
+        .nav-links a::before {
+            content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 0%; height: 2px; background: var(--primary); transition: 0.3s ease-out;
+        }
+        .nav-links a:hover { color: var(--text-main); transform: translateY(-2px); text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+        .nav-links a:hover::before { width: 100%; }
+
+        /* --- HERO --- */
+        .hero { 
+            min-height: 100vh; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; text-align: center; 
+            padding: 120px 20px 60px 20px; position: relative; 
+        }
+        
+        .hero-glow { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: 600px; height: 600px; background: rgba(139, 92, 246, 0.15); 
+            border-radius: 50%; filter: blur(120px); z-index: -1; 
+            animation: pulse 4s infinite ease-in-out; 
+        }
+        @keyframes pulse { 
+            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); } 
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); } 
+        }
+
+        .profile-wrapper { 
+            width: 180px; height: 180px; position: relative; margin-bottom: 40px; 
+            transition: 0.5s; cursor: pointer;
+        }
+        .profile-wrapper:hover { transform: scale(1.05) rotate(2deg); }
+        .profile-pic { 
+            width: 100%; height: 100%; object-fit: cover; border-radius: 35px; 
+            border: 3px solid rgba(6, 182, 212, 0.8); 
+            box-shadow: 0 0 50px rgba(6, 182, 212, 0.4); transition: 0.5s; 
+            position: relative; z-index: 2; 
+        }
+        .pulse-ring { 
+            position: absolute; inset: -10px; border: 2px solid rgba(139, 92, 246, 0.6); 
+            border-radius: 45px; animation: ringPulse 3s infinite; 
+        }
+        .pulse-ring:nth-child(2) { inset: -20px; animation-delay: 0.5s; border-color: rgba(6, 182, 212, 0.4); }
+        @keyframes ringPulse { 
+            0% { transform: scale(0.9); opacity: 1; } 
+            100% { transform: scale(1.1); opacity: 0; } 
+        }
+
+        .hello-badge {
+            background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.4);
+            padding: 8px 25px; border-radius: 50px; margin-bottom: 25px;
+            font-family: 'Space Grotesk'; font-size: 1rem; color: var(--primary);
+            text-transform: uppercase; letter-spacing: 3px; font-weight: 700;
+            display: inline-block; backdrop-filter: blur(5px); 
+            transition: 0.3s; cursor: default; position: relative; overflow: hidden;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+        }
+        .hello-badge::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent);
+            transform: skewX(-25deg); animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer { 100% { left: 200%; } }
+        .hello-badge:hover { background: rgba(6, 182, 212, 0.2); box-shadow: 0 0 30px rgba(6, 182, 212, 0.6); transform: translateY(-2px); }
+
+        h1 { 
+            font-size: 4.5rem; font-weight: 700; line-height: 1.1; margin-bottom: 25px; 
+            letter-spacing: -2px; transition: 0.3s;
+        }
+        /* GRADIENT HOVER EFFECT (Applied to all main titles) */
+        .gradient-text { 
+            background: linear-gradient(90deg, var(--primary), #d946ef, var(--secondary)); 
+            background-size: 200%;
+            -webkit-background-clip: text; color: transparent; 
+            transition: background-position 0.5s;
+        }
+        /* Shift on hover */
+        h1:hover .gradient-text, 
+        .section-title:hover .gradient-text,
+        .project-card:hover .project-title-gradient { 
+            background-position: right center; 
+        }
+        
+        .typewriter-container { 
+            font-size: 1.5rem; font-family: 'Space Grotesk', monospace; 
+            color: #e2e8f0; height: 60px; margin-bottom: 30px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cursor { display: inline-block; width: 3px; height: 1.2rem; background: var(--secondary); margin-left: 5px; animation: blink 0.7s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Buttons */
+        .btn-group { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .btn { 
+            padding: 14px 35px; border-radius: 50px; font-weight: 600; 
+            text-decoration: none; display: inline-flex; align-items: center; gap: 10px; 
+            transition: 0.3s; cursor: pointer; border: none; font-size: 1.1rem; 
+        }
+        .btn-primary { 
+            background: linear-gradient(45deg, var(--secondary), var(--primary)); 
+            color: white; box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); 
+        }
+        .btn-primary:hover { 
+            transform: translateY(-3px) scale(1.05); box-shadow: 0 0 40px rgba(139, 92, 246, 0.8); 
+        }
+        .btn-outline { 
+            background: rgba(255,255,255,0.05); color: white; 
+            border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); 
+        }
+        .btn-outline:hover { 
+            border-color: var(--primary); color: var(--primary); 
+            background: rgba(6, 182, 212, 0.1); transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+
+        .scroll-down { 
+            position: absolute; bottom: 30px; animation: bounce 2s infinite; 
+            color: var(--text-muted); cursor: pointer; font-size: 1.5rem; transition: 0.3s;
+        }
+        .scroll-down:hover { color: var(--primary); transform: scale(1.2); text-shadow: 0 0 10px var(--primary); }
+        @keyframes bounce { 
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 
+            40% {transform: translateY(-10px);} 
+            60% {transform: translateY(-5px);} 
+        }
+
+        /* --- SECTIONS --- */
+        section { max-width: 1200px; margin: 0 auto; padding: 100px 20px; }
+        .section-title { 
+            font-size: 3rem; font-weight: 700; margin-bottom: 60px; 
+            font-family: 'Space Grotesk'; text-align: center; transition: 0.3s;
+            cursor: default;
+        }
+        .section-title:hover { letter-spacing: 2px; text-shadow: 0 0 30px rgba(255,255,255,0.3); }
+
+        /* --- 3D TILT CARDS --- */
+        .tilt-card {
+            background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 30px; padding: 50px; backdrop-filter: blur(12px); 
+            transition: transform 0.1s ease, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+        }
+        .tilt-content { transform: translateZ(20px); }
+
+        /* --- ABOUT ME --- */
+        .glass-card { 
+            background: rgba(30, 41, 59, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 30px; padding: 50px; backdrop-filter: blur(8px); 
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+        }
+        .glass-card:hover { 
+            border-color: rgba(255,255,255,0.3); transform: translateY(-5px); 
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.15); 
+        }
+
+        /* --- PROFESSIONAL JOURNEY (Floating Cards) --- */
+        .timeline-container { max-width: 800px; margin: 0 auto; position: relative; }
+        .timeline-container::after { content: ''; position: absolute; width: 4px; background: linear-gradient(to bottom, var(--secondary), var(--primary), transparent); top: 0; bottom: 0; left: 50%; margin-left: -2px; border-radius: 2px; }
+        
+        .timeline-item { padding: 10px 40px; position: relative; width: 50%; box-sizing: border-box; }
+        .timeline-item.left { left: 0; text-align: right; }
+        .timeline-item.right { left: 50%; text-align: left; }
+        
+        .timeline-content {
+            padding: 30px; background: rgba(30, 41, 59, 0.4); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px); transition: 0.4s; position: relative; z-index: 2; text-align: left;
+        }
+        /* Specific Hover Colors for Journey */
+        .timeline-content:hover { transform: translateY(-8px); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+        .timeline-item.left .timeline-content:hover { border-right: 4px solid var(--secondary); background: linear-gradient(to left, rgba(139, 92, 246, 0.1), transparent); }
+        .timeline-item.right .timeline-content:hover { border-left: 4px solid var(--accent); background: linear-gradient(to right, rgba(245, 158, 11, 0.1), transparent); }
+
+        .timeline-dot {
+            width: 20px; height: 20px; background: var(--bg-dark); border: 4px solid var(--secondary);
+            position: absolute; border-radius: 50%; top: 30px; right: -12px; z-index: 3; box-shadow: 0 0 10px var(--secondary);
+            transition: 0.3s;
+        }
+        .timeline-item:hover .timeline-dot { transform: scale(1.3); background: white; box-shadow: 0 0 20px white; }
+        .timeline-item.right .timeline-dot { left: -12px; border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
+
+        .job-bullets { margin-top: 15px; padding-left: 0; }
+        .job-bullets li {
+            font-size: 0.95rem; color: var(--text-muted); margin-bottom: 10px;
+            list-style: none; position: relative; padding-left: 20px; transition: 0.3s;
+        }
+        .job-bullets li::before {
+            content: '▹'; position: absolute; left: 0; color: var(--primary); transition: 0.3s; font-weight: bold;
+        }
+        .timeline-content:hover .job-bullets li { color: #e2e8f0; }
+        .timeline-content:hover .job-bullets li::before { transform: translateX(3px); text-shadow: 0 0 10px var(--primary); }
+
+        /* --- PROJECTS (Neon Box 4-Sided Hover) --- */
+        .project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; }
+        
+        .project-card { 
+            background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 30px; padding: 40px; display: flex; flex-direction: column;
+            position: relative; overflow: hidden; transition: all 0.4s ease;
+        }
+        
+        /* Gradient Title for Projects */
+        .project-title-gradient {
+            background: linear-gradient(90deg, #fff, #d946ef, #fff); 
+            background-size: 200%;
+            -webkit-background-clip: text; color: transparent; 
+            transition: background-position 0.5s;
+            background-position: left center;
+        }
+
+        /* 1. PURPLE NEON HOVER */
+        .project-card.purple:hover { 
+            border: 2px solid var(--glow-purple); 
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.4), inset 0 0 30px rgba(139, 92, 246, 0.1); 
+            transform: translateY(-10px) scale(1.02);
+        }
+        .project-card.purple .project-icon { color: var(--secondary); background: rgba(139, 92, 246, 0.1); }
+        .project-card.purple .tag { color: #d8b4fe; background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.2); }
+        .project-card.purple .btn-project:hover { background: var(--secondary); color: white; border-color: var(--secondary); box-shadow: 0 0 20px var(--secondary); }
+        .project-card.purple .use-case { border-left-color: var(--secondary); }
+
+        /* 2. CYAN NEON HOVER */
+        .project-card.cyan:hover { 
+            border: 2px solid var(--glow-cyan); 
+            box-shadow: 0 0 50px rgba(6, 182, 212, 0.4), inset 0 0 30px rgba(6, 182, 212, 0.1); 
+            transform: translateY(-10px) scale(1.02);
+        }
+        .project-card.cyan .project-icon { color: var(--primary); background: rgba(6, 182, 212, 0.1); }
+        .project-card.cyan .tag { color: #a5f3fc; background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.2); }
+        .project-card.cyan .btn-project:hover { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 20px var(--primary); }
+        .project-card.cyan .use-case { border-left-color: var(--primary); }
+
+        /* 3. EMERALD NEON HOVER */
+        .project-card.emerald:hover { 
+            border: 2px solid var(--glow-emerald); 
+            box-shadow: 0 0 50px rgba(16, 185, 129, 0.4), inset 0 0 30px rgba(16, 185, 129, 0.1); 
+            transform: translateY(-10px) scale(1.02);
+        }
+        .project-card.emerald .project-icon { color: var(--tertiary); background: rgba(16, 185, 129, 0.1); }
+        .project-card.emerald .tag { color: #6ee7b7; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); }
+        .project-card.emerald .btn-project:hover { background: var(--tertiary); color: white; border-color: var(--tertiary); box-shadow: 0 0 20px var(--tertiary); }
+        .project-card.emerald .use-case { border-left-color: var(--tertiary); }
+
+        .project-icon { width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; font-size: 1.8rem; transition: 0.3s; }
+        .tag { font-size: 0.75rem; padding: 6px 12px; border-radius: 20px; border: 1px solid transparent; margin-right: 8px; margin-bottom: 8px; display: inline-block; font-weight: 600; letter-spacing: 0.5px; transition: 0.3s; }
+        .tag:hover { transform: scale(1.1); filter: brightness(1.2); }
+        .use-case { font-size: 0.9rem; color: #e2e8f0; border-left: 3px solid; padding-left: 15px; margin-bottom: 25px; font-style: italic; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 0 10px 10px 0; transition: 0.3s; }
+        .project-card:hover .use-case { background: rgba(255,255,255,0.08); }
+        
+        .btn-project { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-muted); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; font-weight: 500; font-size: 0.9rem; }
+
+        /* --- FOOTER & MODAL --- */
+        .social-icon {
+            width: 60px; height: 60px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center; color: var(--text-muted);
+            text-decoration: none; transition: 0.4s; font-size: 1.5rem; background: rgba(255,255,255,0.05);
+        }
+        /* Color Filled Hover */
+        .social-icon.linkedin:hover { background: #0077b5; border-color: #0077b5; color: white; transform: translateY(-5px) scale(1.1); box-shadow: 0 10px 30px rgba(0, 119, 181, 0.5); }
+        .social-icon.github:hover { background: #6e5494; border-color: #6e5494; color: white; transform: translateY(-5px) scale(1.1); box-shadow: 0 10px 30px rgba(110, 84, 148, 0.5); }
+        .social-icon.mail:hover { background: #ea4335; border-color: #ea4335; color: white; transform: translateY(-5px) scale(1.1); box-shadow: 0 10px 30px rgba(234, 67, 53, 0.5); }
+
+        /* --- FIXED MODAL (DEAD CENTER of VIEWPORT) --- */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; width: 100vw; height: 100vh; /* Viewport takeover */
+            background-color: rgba(0,0,0,0.85); 
+            backdrop-filter: blur(8px); 
+            z-index: 100000; /* Extremely High Z-Index */
+            justify-content: center; 
+            align-items: center; 
+        }
+        
+        .modal-content { 
+            background: #0f172a; border: 1px solid rgba(6, 182, 212, 0.3); 
+            width: 90%; max-width: 450px; padding: 40px; border-radius: 30px; 
+            position: relative; box-shadow: 0 0 80px rgba(6, 182, 212, 0.4); 
+            transform: scale(0.9); opacity: 0; transition: 0.3s;
+            display: flex; flex-direction: column; margin: auto; /* Center in flex container */
+        }
+        .modal.show { display: flex !important; }
+        .modal.show .modal-content { transform: scale(1); opacity: 1; }
+        
+        .contact-btn { display: flex; align-items: center; gap: 20px; background: rgba(255,255,255,0.05); padding: 18px; border-radius: 16px; color: white; text-decoration: none; margin-bottom: 15px; transition: 0.3s; border: 1px solid transparent; font-weight: 500; }
+        .contact-btn:hover { background: rgba(6, 182, 212, 0.1); border-color: var(--primary); transform: translateX(5px); }
+
+        /* MOBILE OPTIMIZATIONS */
+        @media (max-width: 768px) {
+            h1 { font-size: 3rem; }
+            .hero-glow { width: 300px; height: 300px; }
+            .nav-links { display: none; }
+            .profile-wrapper { width: 150px; height: 150px; }
+            .typewriter-container { font-size: 1.1rem; height: auto; min-height: 60px;}
+            section { padding: 60px 20px; }
+            .glass-card, .project-card, .timeline-content { padding: 25px; }
+            .section-title { font-size: 2.2rem; margin-bottom: 40px; }
+            
+            .timeline-container::after { left: 31px; }
+            .timeline-item { width: 100%; padding-left: 70px; padding-right: 0; }
+            .timeline-item.left { text-align: left; }
+            .timeline-item.left .timeline-dot, .timeline-item.right .timeline-dot { left: 21px; }
+            .timeline-item.right { left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- FIXED BACKGROUND CANVAS -->
+    <canvas id="canvas-container"></canvas>
+    
+    <!-- PAGE WRAPPER (Keeps perspective separate from modal) -->
+    <div class="page-wrapper" style="position: relative; z-index: 1;">
+        
+        <div id="scroll-progress"></div>
+
+        <nav id="navbar">
+            <div class="nav-content">
+                <div class="logo" onclick="window.scrollTo(0,0)">MK.</div>
+                <div class="nav-links">
+                    <a href="#about" class="nav-btn"><i class="fa-solid fa-user"></i> About</a>
+                    <a href="#projects" class="nav-btn"><i class="fa-solid fa-code"></i> Projects</a>
+                    <a href="#experience" class="nav-btn"><i class="fa-solid fa-briefcase"></i> Experience</a>
+                    <a href="#contact" class="nav-btn"><i class="fa-solid fa-envelope"></i> Contact</a>
+                </div>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div class="hero-glow"></div>
+            <div class="profile-wrapper tilt-card">
+                <div class="pulse-ring"></div>
+                <!-- Ensure your image file is named exactly this -->
+                <img src="1000076948.jpg" alt="Mahesh Katula" class="profile-pic">
+            </div>
+            
+            <div class="hello-badge">
+                <span id="hello-text"></span>
+            </div>
+            
+            <h1>Transforming Data Into <br> <span class="gradient-text">Strategic Impact</span></h1>
+            
+            <div class="typewriter-container">
+                <span id="typewriter"></span><span class="cursor"></span>
+            </div>
+
+            <div class="btn-group">
+                <a href="#projects" class="btn btn-outline"><i class="fa-solid fa-eye"></i> View Work</a>
+                <button onclick="openModal()" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Hire Me</button>
+            </div>
+            
+            <div class="scroll-down" onclick="document.getElementById('about').scrollIntoView()"><i class="fa-solid fa-chevron-down"></i></div>
+        </section>
+
+        <section id="about">
+            <div class="glass-card tilt-card">
+                <h2 class="section-title"><span class="gradient-text">About Me</span></h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; align-items: center;">
+                    <div class="tilt-content">
+                        <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px;">
+                            I am a data enthusiast adept at transforming complex datasets into actionable insights. With a proven track record at <strong style="color: white; border-bottom: 2px solid var(--secondary);">Amazon</strong> in fraud prevention analytics, I specialize in identifying trends that drive innovation.
+                        </p>
+                        <p style="color: var(--text-muted); font-size: 1.1rem;">
+                            My tech stack bridges the gap between raw data and strategic decision-making, utilizing <strong style="color: var(--primary);">Advanced SQL</strong>, <strong style="color: var(--primary);">Power BI</strong>, and <strong style="color: var(--secondary);">AI-driven automation</strong> to solve high-stakes business problems.
+                        </p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.05)'">
+                            <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary);">3+</div>
+                            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; margin-top: 5px;">Major Projects</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.borderColor='var(--secondary)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.05)'">
+                            <div style="font-size: 2.5rem; font-weight: 700; color: var(--secondary);">8.48</div>
+                            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; margin-top: 5px;">CGPA</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); grid-column: span 2; transition: 0.3s;" onmouseover="this.style.borderColor='white'" onmouseout="this.style.borderColor='rgba(255,255,255,0.05)'">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: white;">Amazon</div>
+                            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; margin-top: 5px;">Ex-Associate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects">
+            <h2 class="section-title"><span class="gradient-text">Featured Projects</span></h2>
+            <div class="project-grid">
+                
+                <!-- Project 1: PURPLE (SQL) -->
+                <div class="project-card purple tilt-card">
+                    <div class="tilt-content">
+                        <div class="project-icon"><i class="fa-solid fa-database"></i></div>
+                        <h3 class="project-title-gradient" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 10px;">Logistics Optimization</h3>
+                        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px;">
+                            Engineered a scalable SQL analytics framework to diagnose supply chain inefficiencies. implemented Recursive CTEs, Subqueries, and Window Functions to analyze delivery latency across diverse routes.
+                        </p>
+                        <div class="use-case">
+                            "The solution identified critical bottlenecks, enabling a data-driven logistics optimization strategy."
+                        </div>
+                        <div style="margin-bottom: 25px;">
+                            <span class="tag">SQL</span><span class="tag">CTEs</span><span class="tag">WinFunc</span><span class="tag">Joins</span>
+                        </div>
+                        <a href="https://github.com/maheshk2002/Amazon_Logistics_Optimization_SQL" target="_blank" class="btn-project"><i class="fa-brands fa-github"></i> View Code</a>
+                    </div>
+                </div>
+
+                <!-- Project 2: CYAN (Power BI) -->
+                <div class="project-card cyan tilt-card">
+                    <div class="tilt-content">
+                        <div class="project-icon"><i class="fa-solid fa-chart-pie"></i></div>
+                        <h3 class="project-title-gradient" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 10px;">Retail Customer Retention</h3>
+                        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px;">
+                            Architected an end-to-end predictive analytics dashboard to combat customer churn. Constructed a robust Star Schema data model and utilized Advanced DAX to quantify Customer Lifetime Value (CLV).
+                        </p>
+                        <div class="use-case">
+                            "Identified churn reasons, segmented at-risk demographics and provided actionable recommendation to improve loyalty and retention."
+                        </div>
+                        <div style="margin-bottom: 25px;">
+                            <span class="tag">Power BI</span><span class="tag">DAX</span><span class="tag">Power Query</span><span class="tag">Data Modeling</span>
+                        </div>
+                        <a href="https://github.com/maheshk2002/Tesco-Customer-Retention-Analysis" target="_blank" class="btn-project"><i class="fa-brands fa-github"></i> View Code</a>
+                    </div>
+                </div>
+
+                <!-- Project 3: EMERALD (Excel) -->
+                <div class="project-card emerald tilt-card">
+                    <div class="tilt-content">
+                        <div class="project-icon"><i class="fa-solid fa-table"></i></div>
+                        <h3 class="project-title-gradient" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 10px;">Social Media Analytics</h3>
+                        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px;">
+                            Developed an automated Social Media Intelligence tool using Advanced Excel Functions (XLOOKUP, Array Formulas, etc) and Interactive Pivot Charts. Streamlined the ETL process for raw engagement metrics.
+                        </p>
+                        <div class="use-case">
+                            "Provided real-time visibility into campaign performance and impact, data driven strategic insights and recommendations on platform ROI, content strategy an hashtag optimization."
+                        </div>
+                        <div style="margin-bottom: 25px;">
+                            <span class="tag">Excel</span><span class="tag">Automation</span><span class="tag">Pivot Tables</span><span class="tag">Data Cleaning</span>
+                        </div>
+                        <a href="https://github.com/maheshk2002/Social_Media_Performance_Analytics_Excel" target="_blank" class="btn-project"><i class="fa-brands fa-github"></i> View Code</a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="experience">
+            <h2 class="section-title"><span class="gradient-text">Professional Journey</span></h2>
+            <div class="timeline-container">
+                <!-- Job 1 -->
+                <div class="timeline-item left">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content tilt-card">
+                        <div class="tilt-content">
+                            <div style="margin-bottom: 10px;">
+                                <span style="background: rgba(139, 92, 246, 0.1); color: var(--secondary); padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Jan 2024 - May 2024</span>
+                            </div>
+                            <h3 style="font-size: 1.5rem; font-weight: 700; color: #fff;">CAP Associate</h3>
+                            <div style="color: var(--text-muted); margin-bottom: 15px; font-weight: 500;">Amazon, Virtual</div>
+                            <ul class="job-bullets">
+                                <li>Worked in a highly confidential environment to help minimize the abuse of Amazon's policies.</li>
+                                <li>Leveraged proprietary research and analytics to identify and address potential instances of concession misuse within the Indian marketplace.</li>
+                                <li>Maintained strict confidentiality regarding sensitive information and internal processes, in accordance with company policies.</li>
+                                <li>Contributed to loss prevention efforts by demonstrating strong analytical, problem-solving, and decision-making skills to effectively mitigate concession abuse.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job 2 -->
+                <div class="timeline-item right">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content tilt-card">
+                        <div class="tilt-content">
+                            <div style="margin-bottom: 10px;">
+                                <span style="background: rgba(245, 158, 11, 0.1); color: var(--accent); padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Oct 2023 - Dec 2023</span>
+                            </div>
+                            <h3 style="font-size: 1.5rem; font-weight: 700; color: #fff;">D2AS Associate</h3>
+                            <div style="color: var(--text-muted); margin-bottom: 15px; font-weight: 500;">Amazon, Virtual</div>
+                            <ul class="job-bullets">
+                                <li>Provided comprehensive technical support and troubleshooting for a wide range of digital devices and Alexa-enabled smart home products in the North American marketplace.</li>
+                                <li>Contributed to enhancing customer satisfaction and brand loyalty through effective communication and timely issue resolution.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" style="text-align: center; padding-bottom: 50px;">
+            <h2 class="section-title"><span class="gradient-text">Let's Collaborate</span></h2>
+            <p style="color: var(--text-muted); font-size: 1.2rem; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto;">Ready to transform your data into a strategic asset? I'm available for full-time roles and freelance projects.</p>
+            
+            <button onclick="openModal()" class="btn btn-primary" style="padding: 15px 50px; font-size: 1.2rem; margin-bottom: 60px;">Hire Me Now</button>
+            
+            <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 40px;">
+                <a href="https://www.linkedin.com/in/mahesh-katula-mk777" target="_blank" class="social-icon linkedin"><i class="fa-brands fa-linkedin-in"></i></a>
+                <a href="https://github.com/maheshk2002" target="_blank" class="social-icon github"><i class="fa-brands fa-github"></i></a>
+                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=maheshtavinder2002@gmail.com" target="_blank" class="social-icon mail"><i class="fa-solid fa-envelope"></i></a>
+            </div>
+            
+            <div style="color: rgba(255,255,255,0.2); font-size: 0.9rem;">© 2025 Mahesh Katula. All Rights Reserved.</div>
+        </section>
+    
+    </div> <!-- End Page Wrapper -->
+
+    <!-- Modal (OUTSIDE Wrapper for FIXED Positioning) -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span onclick="closeModal()" style="position: absolute; top: 20px; right: 20px; cursor: pointer; color: var(--text-muted); font-size: 1.5rem;">&times;</span>
+            <h3 style="font-size: 1.8rem; margin-bottom: 10px; text-align: center; color: white;">Get In Touch</h3>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Choose a method to connect.</p>
+            
+            <a href="tel:+918104815664" class="contact-btn">
+                <div style="width: 40px; text-align: center;"><i class="fa-solid fa-phone" style="color: var(--primary); font-size: 1.2rem;"></i></div>
+                <span>+91 8104815664</span>
+            </a>
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=maheshtavinder2002@gmail.com" target="_blank" class="contact-btn">
+                <div style="width: 40px; text-align: center;"><i class="fa-solid fa-envelope" style="color: var(--secondary); font-size: 1.2rem;"></i></div>
+                <span>Send Email (Gmail)</span>
+            </a>
+            <a href="https://www.linkedin.com/in/mahesh-katula-mk777" target="_blank" class="contact-btn">
+                <div style="width: 40px; text-align: center;"><i class="fa-brands fa-linkedin" style="color: #0077b5; font-size: 1.2rem;"></i></div>
+                <span>Connect on LinkedIn</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // --- 1. 3D TILT EFFECT LOGIC (Universal) ---
+        const cards = document.querySelectorAll('.tilt-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / 25) * -1;
+                const rotateY = (x - centerX) / 25;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+            });
+        });
+
+        // --- 2. TYPEWRITER (Speeds: Type 35ms, Delete 15ms) ---
+        const helloStr = "Hello, I'm Mahesh Katula";
+        const titleStr = "Emerging Data Scientist | AI-Native Problem Solver | Next-Gen Analytics Enthusiast";
+        const helloEl = document.getElementById('hello-text');
+        const typeEl = document.getElementById('typewriter');
+        
+        let hIndex = 0;
+        let tIndex = 0;
+        let isDeleting = false;
+
+        function typeHello() {
+            if (hIndex <= helloStr.length) {
+                helloEl.textContent = helloStr.substring(0, hIndex);
+                hIndex++;
+                setTimeout(typeHello, 35);
+            } else {
+                setTimeout(typeTitle, 500);
+            }
+        }
+
+        function typeTitle() {
+            if (!isDeleting && tIndex <= titleStr.length) {
+                typeEl.textContent = titleStr.substring(0, tIndex);
+                tIndex++;
+                setTimeout(typeTitle, 35);
+            } else if (isDeleting && tIndex >= 0) {
+                typeEl.textContent = titleStr.substring(0, tIndex);
+                tIndex--;
+                setTimeout(typeTitle, 15);
+            } else if (!isDeleting && tIndex > titleStr.length) {
+                isDeleting = true;
+                setTimeout(typeTitle, 1500);
+            } else if (isDeleting && tIndex < 0) {
+                isDeleting = false;
+                tIndex = 0;
+                setTimeout(typeTitle, 500);
+            }
+        }
+        
+        window.onload = function() {
+            typeHello();
+        };
+
+        // --- 3. SCROLL PROGRESS & NAV ---
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            const progress = document.getElementById('scroll-progress');
+            
+            if (window.scrollY > 50) nav.classList.add('scrolled');
+            else nav.classList.remove('scrolled');
+
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (window.scrollY / height) * 100;
+            progress.style.width = scrolled + "%";
+        });
+
+        // --- 4. MODAL ---
+        const modal = document.getElementById('contactModal');
+        const modalContent = document.querySelector('.modal-content');
+        
+        function openModal() { 
+            modal.style.display = 'flex'; 
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+        
+        function closeModal() { 
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+        
+        window.onclick = function(e) { if(e.target == modal) closeModal(); }
+
+        // --- 5. CANVAS ANIMATION (DENSE & SHINY - LOCKED) ---
+        const canvas = document.getElementById('canvas-container');
+        const ctx = canvas.getContext('2d');
+        
+        // Retina Fix
+        const pixelRatio = window.devicePixelRatio || 1;
+
+        let particlesArray;
+        let mouse = { x: null, y: null, radius: 150 };
+
+        function resize() {
+            canvas.width = window.innerWidth * pixelRatio;
+            canvas.height = window.innerHeight * pixelRatio;
+            canvas.style.width = `${window.innerWidth}px`;
+            canvas.style.height = `${window.innerHeight}px`;
+            ctx.scale(pixelRatio, pixelRatio);
+            init();
+        }
+
+        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+
+        class Particle {
+            constructor(x, y, size, color) {
+                this.x = x; this.y = y; this.baseX = x; this.baseY = y;
+                this.size = size; this.color = color; 
+                this.density = (Math.random() * 30) + 1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+            update() {
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx*dx + dy*dy);
+                let forceDirectionX = dx / distance;
+                let forceDirectionY = dy / distance;
+                let maxDistance = mouse.radius;
+                let force = (maxDistance - distance) / maxDistance;
+                let directionX = forceDirectionX * force * this.density;
+                let directionY = forceDirectionY * force * this.density;
+
+                if (distance < mouse.radius) {
+                    this.x -= directionX;
+                    this.y -= directionY;
+                } else {
+                    if (this.x !== this.baseX) { let dx = this.x - this.baseX; this.x -= dx/10; }
+                    if (this.y !== this.baseY) { let dy = this.y - this.baseY; this.y -= dy/10; }
+                }
+                this.draw();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            // LOCKED SETTINGS: High Density (5000), Small Size, High Shine
+            const numberOfParticles = (window.innerWidth * window.innerHeight) / 5000;
+            
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = (Math.random() * 1.5) + 0.5; // Small & Sharp
+                let x = Math.random() * window.innerWidth;
+                let y = Math.random() * window.innerHeight;
+                // High Opacity (0.9)
+                let color = Math.random() > 0.5 ? 'rgba(6, 182, 212, 0.9)' : 'rgba(139, 92, 246, 0.9)';
+                particlesArray.push(new Particle(x, y, size, color));
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+            connect();
+        }
+
+        function connect() {
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a; b < particlesArray.length; b++) {
+                    let distance = ((particlesArray[a].x - particlesArray[b].x) ** 2) + 
+                                   ((particlesArray[a].y - particlesArray[b].y) ** 2);
+                    // Connection distance
+                    if (distance < (window.innerWidth/7) * (window.innerHeight/7)) {
+                        let opacity = 1 - (distance/20000);
+                        // Sharp lines (0.6 width)
+                        ctx.strokeStyle = 'rgba(139, 92, 246,' + opacity * 0.5 + ')';
+                        ctx.lineWidth = 0.6; 
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('resize', resize);
+        
+        // Init
+        resize();
+        animate();
+    </script>
+</body>
+</html>
