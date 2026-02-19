@@ -118,7 +118,7 @@
         
         .profile-pic { 
             width: 100%; height: 100%; object-fit: cover; 
-            border-radius: 20px; /* CHANGED: Lower value = Rounded Square */
+            border-radius: 20px; /* CHANGED: Lower value makes it a Square */
             border: 3px solid rgba(6, 182, 212, 0.8); 
             box-shadow: 0 0 50px rgba(6, 182, 212, 0.4); transition: 0.5s; 
             position: relative; z-index: 2; 
@@ -130,7 +130,11 @@
             animation: ringPulse 3s infinite; 
         }
         
-        .pulse-ring:nth-child(2) { inset: -20px; animation-delay: 0.5s; border-color: rgba(6, 182, 212, 0.4); border-radius: 40px; }
+        .pulse-ring:nth-child(2) { 
+            inset: -20px; 
+            border-radius: 40px; /* CHANGED: Outer ring */
+            animation-delay: 0.5s; border-color: rgba(6, 182, 212, 0.4); 
+        }
         
         @keyframes ringPulse { 
             0% { transform: scale(0.9); opacity: 1; } 
@@ -816,3 +820,4 @@
 </body>
 
 </html>
+
