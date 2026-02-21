@@ -114,6 +114,9 @@
             width: 204px; height: 204px; /* CHANGED: Increased from 180px to make it larger */
             position: relative; margin-bottom: 40px; 
             transition: 0.5s; cursor: pointer;
+            padding: 0 !important; /* THIS FIXES IT: Removes the invisible gap squeezing the photo */
+            background: transparent !important; 
+            border: none !important;
         }
         .profile-wrapper:hover { transform: scale(1.05) rotate(2deg); }
         
@@ -821,6 +824,7 @@
 </body>
 
 </html>
+
 
 
 
