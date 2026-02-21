@@ -110,15 +110,16 @@
             50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); } 
         }
 
-        .profile-wrapper { 
-            width: 180px; height: 180px; position: relative; margin-bottom: 40px; 
+       .profile-wrapper { 
+            width: 240px; height: 240px; /* CHANGED: Increased from 180px to make it larger */
+            position: relative; margin-bottom: 40px; 
             transition: 0.5s; cursor: pointer;
         }
         .profile-wrapper:hover { transform: scale(1.05) rotate(2deg); }
         
         .profile-pic { 
             width: 100%; height: 100%; object-fit: cover; 
-            border-radius: 20px; /* CHANGED: Lower value makes it a Square */
+            border-radius: 20px; 
             border: 3px solid rgba(6, 182, 212, 0.8); 
             box-shadow: 0 0 50px rgba(6, 182, 212, 0.4); transition: 0.5s; 
             position: relative; z-index: 2; 
@@ -126,13 +127,13 @@
         
         .pulse-ring { 
             position: absolute; inset: -10px; border: 2px solid rgba(139, 92, 246, 0.6); 
-            border-radius: 30px; /* CHANGED: Matches the square shape */
+            border-radius: 30px; 
             animation: ringPulse 3s infinite; 
         }
         
         .pulse-ring:nth-child(2) { 
             inset: -20px; 
-            border-radius: 40px; /* CHANGED: Outer ring */
+            border-radius: 40px; 
             animation-delay: 0.5s; border-color: rgba(6, 182, 212, 0.4); 
         }
         
@@ -820,4 +821,5 @@
 </body>
 
 </html>
+
 
